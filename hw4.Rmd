@@ -49,32 +49,32 @@ head(complete, 3)
 
 3. In the complete data set introduce a new variable that measures the current weight difference compared to day 0. Name this variable  `weightgain` and print the first 3 rows of the new data frame.
 ```{r}
-weightgain = complete %>%
+weight_gain = complete %>%
   group_by(Chick) %>%
-  mutate(Weight_gain = weight - weight[Time == 0])
-weightgain[1:3, ]
+  mutate(weightgain = weight - weight[Time == 0])
+weight_gain[1:3, ]
 ```
 
 4. Use `{ggplot2}` to create side-by-side boxplots of `weightgain` by `Diet` for day 21. Change the order of the categories in the Diet variable such that the boxplots are ordered by median `weightgain`, and the lower limit of the y axis should be 0. Describe the relationship in 2-3 sentences.
 ```{r}
-df1 <- filter(weightgain, Time == 21)
-ggplot(df1, aes(x=reorder(Diet, Weight_gain, median), y=Weight_gain)) + geom_boxplot() + labs(x = "Diet", y = "Weight Gain") + ylim(c(0, 350))
+df1 <- filter(weight_gain, Time == 21)
+ggplot(df1, aes(x=reorder(Diet, weightgain, median), y=weightgain)) + geom_boxplot() + labs(x = "Diet", y = "Weight Gain") + ylim(c(0, 350))
 ```
 
 It seems like the diet with the lowest amounts of weight gain is #1 and the diet with the highest amounts of weight gain is #3. Although diet #2 has a minimum lower than diet #1, about 75% of diet #1's data is below diet #2's median; which means it typically has lower weight gain. 
 
 5. Answer each of the following questions using numerical and graphical summary. Also explain what you found: (a) Which chick gained the most weight and which gained the least weight? (b) What diets were they on?
 ```{r}
-total_gain <- weightgain %>%
+total_gain <- weight_gain %>%
   group_by(Chick) %>%
-  filter(Time == max(weightgain$Time)) %>%
-  arrange(Weight_gain)
+  filter(Time == max(weight_gain$Time)) %>%
+  arrange(weightgain)
 # Numerical summary
 total_gain$Chick = as.numeric(levels(total_gain$Chick)[total_gain$Chick])  
 cat(sep="", "Lowest Chick: ", total_gain$Chick[1], ", Diet: ", total_gain$Diet[1], "\n")
 cat(sep="", "Highest Chick: ", total_gain$Chick[dim(total_gain)[1]], ", Diet: ", total_gain$Diet[dim(total_gain)[1]])
 # Graphical summary
-ggplot(total_gain, aes(x = reorder(Chick, Weight_gain, abs), y = Weight_gain)) + geom_col() + labs(x = "Chick", y = "Weight Gain")
+ggplot(total_gain, aes(x = reorder(Chick, weightgain, abs), y = weightgain)) + geom_col() + labs(x = "Chick", y = "Weight Gain")
 ```
 
 (a) The chick that gained the most weight is chick #21 and the chick that gained the least weight is chick #40.
@@ -82,10 +82,10 @@ ggplot(total_gain, aes(x = reorder(Chick, Weight_gain, abs), y = Weight_gain)) +
 
 6. For the chicks with the least and the most weight at time 0, plot their growth trajectories over time.
 ```{r}
-total_gain <- weightgain %>%
+total_gain <- weight_gain %>%
   group_by(Chick) %>%
-  filter(Time == max(weightgain$Time)) %>%
-  arrange(Weight_gain)
+  filter(Time == max(weight_gain$Time)) %>%
+  arrange(weightgain)
 
 least_weight = total_gain$Chick[1]
 # Lowest
@@ -109,7 +109,7 @@ legend("topleft", legend=c("Lowest gain", "Highest gain"), col=c("red", "blue"),
 ```{r}
 v = rep(0, length(time))
 for(i in seq_len(length(time))) {
-  v[i] = mean(weightgain$weight[weightgain$Time == time[i]])
+  v[i] = mean(weight_gain$weight[weight_gain$Time == time[i]])
 }
 # Add to the previous plot
 plot(x = time, y = least_weight_total, xlab="Time", ylab="Weight", xlim=c(0, 22), ylim=c(0, 350))
